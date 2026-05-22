@@ -117,6 +117,9 @@ export function ProductFormDialog({
                 fd.append(`variants[${index}][size_name]`, v.size_name)
                 fd.append(`variants[${index}][price]`, v.price.toString())
                 fd.append(`variants[${index}][stock_qty]`, v.stock_qty.toString())
+                if (v.barcode) {
+                    fd.append(`variants[${index}][barcode]`, v.barcode)
+                }
             })
 
             if (isEdit) {
@@ -130,8 +133,17 @@ export function ProductFormDialog({
             onOpenChange(false)
             onSuccess()
         } catch (error: unknown) {
-            const err = error as { response?: { data?: { message?: string } } }
-            toast.error(err.response?.data?.message || "Failed to save product")
+            console.error("Save product error:", error)
+            const err = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } }
+            
+            const errorMessage = err.response?.data?.message || "Failed to save product"
+            const validationErrors = err.response?.data?.errors 
+                ? Object.values(err.response.data.errors).flat().join(", ")
+                : ""
+            
+            toast.error(validationErrors ? `${errorMessage}: ${validationErrors}` : errorMessage, {
+                duration: 5000
+            })
         }
     }
 
@@ -206,7 +218,8 @@ export function ProductFormDialog({
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                             <Label>Name</Label>
-                            <Input {...form.register("name")} />
+                            <Input {...form.register("name")} className={form.formState.errors.name ? "border-destructive" : ""} />
+                            {form.formState.errors.name && <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>}
                         </div>
                         <div className="space-y-1.5">
                             <Label>Category</Label>
@@ -214,13 +227,14 @@ export function ProductFormDialog({
                                 value={form.watch("category_id")}
                                 onValueChange={(v) => form.setValue("category_id", v)}
                             >
-                                <SelectTrigger>
+                                <SelectTrigger className={form.formState.errors.category_id ? "border-destructive" : ""}>
                                     <SelectValue placeholder="Select category" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {categories.map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}
                                 </SelectContent>
                             </Select>
+                            {form.formState.errors.category_id && <p className="text-xs text-destructive">{form.formState.errors.category_id.message}</p>}
                         </div>
                     </div>
 
@@ -233,23 +247,37 @@ export function ProductFormDialog({
                         <Label>Variants</Label>
                         <div className="space-y-2">
                             {fields.map((field, index) => (
-                                <div key={field.id} className="grid grid-cols-4 gap-2 items-end">
+                                <div key={field.id} className="space-y-2 p-3 border rounded-lg relative">
                                     <input type="hidden" {...form.register(`variants.${index}.id` as const)} />
-                                    <Input placeholder="Size" {...form.register(`variants.${index}.size_name` as const)} />
-                                    <Input type="number" placeholder="Price" step="0.01" {...form.register(`variants.${index}.price` as const)} />
-                                    <Input type="number" placeholder="Stock" {...form.register(`variants.${index}.stock_qty` as const)} />
-                                    <div className="flex justify-end">
-                                        {fields.length > 1 && (
-                                            <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}>
-                                                <MinusIcon className="size-4" />
-                                            </Button>
-                                        )}
+                                    <div className="grid grid-cols-4 gap-2">
+                                        <div className="space-y-1">
+                                            <Label className="text-[10px] uppercase">Size</Label>
+                                            <Input placeholder="Size" {...form.register(`variants.${index}.size_name` as const)} className={form.formState.errors.variants?.[index]?.size_name ? "border-destructive" : ""} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[10px] uppercase">Price</Label>
+                                            <Input type="number" placeholder="Price" step="0.01" {...form.register(`variants.${index}.price` as const)} className={form.formState.errors.variants?.[index]?.price ? "border-destructive" : ""} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[10px] uppercase">Stock</Label>
+                                            <Input type="number" placeholder="Stock" {...form.register(`variants.${index}.stock_qty` as const)} className={form.formState.errors.variants?.[index]?.stock_qty ? "border-destructive" : ""} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label className="text-[10px] uppercase">Barcode</Label>
+                                            <Input placeholder="Barcode" {...form.register(`variants.${index}.barcode` as const)} />
+                                        </div>
                                     </div>
+                                    {fields.length > 1 && (
+                                        <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-background border shadow-sm">
+                                            <MinusIcon className="size-3" />
+                                        </Button>
+                                    )}
                                 </div>
                             ))}
-                            <Button type="button" variant="outline" size="sm" onClick={() => append({ size_name: "", price: 0, stock_qty: 0, barcode: "" })}>
+                            <Button type="button" variant="outline" size="sm" className="w-full" onClick={() => append({ size_name: "", price: 0, stock_qty: 0, barcode: "" })}>
                                 <PlusIcon className="mr-2 size-4" /> Add Variant
                             </Button>
+                            {form.formState.errors.variants?.root && <p className="text-xs text-destructive">{form.formState.errors.variants.root.message}</p>}
                         </div>
                     </div>
 

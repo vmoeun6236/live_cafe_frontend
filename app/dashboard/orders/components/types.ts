@@ -23,6 +23,10 @@ export interface Order extends Omit<BaseOrder, 'id' | 'items' | 'status' | 'crea
     paid_amount: number | null
     change_amount: number | null
     paid_at: string | null
+    table: {
+        number: string;
+        floor: string;
+    } | null
     items: OrderItem[]
     created_at: string
     created_at_human: string

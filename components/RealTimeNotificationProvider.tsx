@@ -16,7 +16,7 @@ export default function RealTimeNotificationProvider({ children }: { children: R
     useEffect(() => {
         const appKey = process.env.NEXT_PUBLIC_REVERB_APP_KEY || 'tqxoes6f2bshju8qff5i';
         const wsHost = process.env.NEXT_PUBLIC_REVERB_HOST || '10.41.1.81';
-        const wsPort = process.env.NEXT_PUBLIC_REVERB_PORT || 8080;
+        const wsPort = Number(process.env.NEXT_PUBLIC_REVERB_PORT || 8080);
 
         console.log('Initializing Echo with key:', appKey, 'host:', wsHost, 'port:', wsPort);
 

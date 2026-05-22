@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { RefreshCwIcon, PackageIcon, Loader2Icon } from "lucide-react"
 
 export default function OrdersPage() {
-    const { orders, isLoading, refetch, updateStatus, updatePayment, cancelOrder } = useOrders()
+    const { orders, isLoading, refetch, updateStatus, updatePayment, cancelOrder, updateOrderItems } = useOrders()
     const [search, setSearch] = React.useState("")
     const [statusFilter, setStatusFilter] = React.useState<string>("all")
     const [paymentFilter, setPaymentFilter] = React.useState<string>("all")

@@ -21,8 +21,8 @@ interface CheckoutDialogProps {
     selectedTable: number | null
     setSelectedTable: (v: number | null) => void
     tables: CafeTable[]
-    paymentMethod: "cash" | "card" | "khqr"
-    setPaymentMethod: (v: "cash" | "card" | "khqr") => void
+    paymentMethod: "cash" | "card" | "khqr" | "pending"
+    setPaymentMethod: (v: "cash" | "card" | "khqr" | "pending") => void
     cashAmount: string
     setCashAmount: (v: string) => void
     gateways: any[]

@@ -45,7 +45,8 @@ function SafeImage({ src, alt, className }: { src: string, alt: string, classNam
 export function ProductsTable() {
     const [mounted, setMounted] = React.useState(false)
     const { hasPermission } = usePermissions()
-    const { data: products = [], isLoading: loading, refetch: fetchData } = useProducts()
+    const { data: productsData = [], isLoading: loading, refetch: fetchData } = useProducts()
+    const products = productsData as unknown as Product[]
     const [categories, setCategories] = React.useState<Category[]>([])
     const [globalFilter, setGlobalFilter] = React.useState("")
     const [categoryFilter, setCategoryFilter] = React.useState<string>("all")
@@ -76,7 +77,7 @@ export function ProductsTable() {
     function openEdit(product: Product) { setSelectedProduct(product); setFormOpen(true); }
     function openDelete(product: Product) { setSelectedProduct(product); setDeleteOpen(true); }
 
-    const columns: ColumnDef<Product>[] = [
+    const columns = React.useMemo<ColumnDef<Product, any>[]>(() => [
         {
             accessorKey: "image",
             header: "Image",
@@ -165,7 +166,7 @@ export function ProductsTable() {
                 </div>
             ),
         },
-    ]
+    ], [hasPermission])
 
     const table = useReactTable({
         data: products,

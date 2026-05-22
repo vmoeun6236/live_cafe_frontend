@@ -12,7 +12,7 @@ export const variantSchema = z.object({
     id: z.number().optional(),
     size_name: z.string().min(1, "Required"),
     price: z.coerce.number().min(0, "Must be >= 0"),
-    stock_qty: z.coerce.number().min(0, "Must be >= 0"),
+    stock_qty: z.coerce.number().int("Must be an integer").min(0, "Must be >= 0"),
     barcode: z.string().optional(),
 })
 
